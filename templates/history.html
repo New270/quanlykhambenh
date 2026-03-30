@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ: {{ patient.Full_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-stethoscope me-2"></i>Phòng Khám Tân Tùng Trung</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-list-ol me-1"></i> Hàng Đợi</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/patients"><i class="fa-solid fa-users me-1"></i> Bệnh Nhân</a></li>
+                </ul>
+                <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off me-1"></i>Thoát</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4" style="max-width: 800px;">
+        <div class="card shadow-sm border-0 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h4 class="mb-0"><i class="fa-solid fa-folder-open text-warning me-2"></i>Hồ Sơ Bệnh Án: <span class="text-primary fw-bold">{{ patient.Full_name }}</span></h4>
+                <a href="/patients" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i>Quay lại</a>
+            </div>
+            
+            <div class="list-group">
+                {% for record in history %}
+                <div class="list-group-item mb-3 border rounded shadow-sm bg-white p-3">
+                    <div class="d-flex w-100 justify-content-between border-bottom pb-2 mb-2">
+                        <h5 class="mb-1 text-success fw-bold"><i class="fa-solid fa-calendar-check me-2"></i>Ngày khám: {{ record.Visit_date.strftime('%d/%m/%Y') }}</h5>
+                        <span class="badge bg-light text-dark border">Phiếu #{{ record.Record_id }}</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-2">
+                            <span class="text-muted fw-bold"><i class="fa-solid fa-head-side-cough me-1"></i> Triệu chứng:</span> 
+                            <span>{{ record.Symptoms if record.Symptoms else 'Không ghi nhận' }}</span>
+                        </div>
+                        <div class="col-md-12 mb-2">
+                            <span class="text-danger fw-bold"><i class="fa-solid fa-virus me-1"></i> Chẩn đoán:</span> 
+                            <span class="text-dark">{{ record.Diagnosis if record.Diagnosis else 'Chưa có chẩn đoán' }}</span>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="p-2 bg-light border-start border-4 border-primary mt-1">
+                                <span class="text-primary fw-bold"><i class="fa-solid fa-pills me-1"></i> Điều trị & Kê đơn:</span><br>
+                                <span>{{ record.Treatment if record.Treatment else 'Chưa có phác đồ' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-file-medical mb-3" style="font-size: 3rem; opacity: 0.5;"></i>
+                    <p>Bệnh nhân này chưa có lịch sử khám bệnh nào.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
