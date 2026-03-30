@@ -2,11 +2,18 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Bệnh Nhân - Phòng Khám</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card { border: none; border-radius: 12px; }
+        .table thead { background-color: #f8f9fa; }
+        .btn-action { margin-right: 5px; }
+    </style>
 </head>
 <body class="bg-light">
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-stethoscope me-2"></i>Phòng Khám Tân Tùng Trung</a>
@@ -15,7 +22,9 @@
                     <li class="nav-item"><a class="nav-link" href="/"><i class="fa-solid fa-list-ol me-1"></i> Hàng Đợi Khám</a></li>
                     <li class="nav-item"><a class="nav-link active fw-bold" href="/patients"><i class="fa-solid fa-users me-1"></i> Bệnh Nhân</a></li>
                 </ul>
-                <span class="navbar-text text-white me-3"><i class="fa-solid fa-user-doctor me-1"></i> BS. <b>{{ session['doctor_name'] }}</b></span>
+                <span class="navbar-text text-white me-3">
+                    <i class="fa-solid fa-user-doctor me-1"></i> BS. <b>{{ session['doctor_name'] }}</b>
+                </span>
                 <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off me-1"></i>Thoát</a>
             </div>
         </div>
@@ -24,71 +33,121 @@
     <div class="container">
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}{% for category, msg in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm">{{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm border-0">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
           {% endfor %}{% endif %}
         {% endwith %}
 
         <div class="row">
             <div class="col-md-4">
-                <div class="card shadow-sm border-0 p-4 mb-4">
-                    <h5 class="text-primary fw-bold"><i class="fa-solid fa-user-plus me-2"></i>Tạo Hồ Sơ & Đặt Hẹn</h5><hr>
+                <div class="card shadow-sm p-4 mb-4">
+                    <h5 class="text-primary fw-bold mb-3"><i class="fa-solid fa-user-plus me-2"></i>Tiếp Nhận & Đặt Lịch</h5>
+                    <hr>
                     <form action="/patients" method="POST">
-                        <div class="mb-2"><label class="form-label fw-bold">Họ tên (*)</label><input type="text" name="fullname" class="form-control" required></div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ và tên (*)</label>
+                            <input type="text" name="fullname" class="form-control" placeholder="Nguyễn Văn A" required>
+                        </div>
+                        
                         <div class="row">
-                            <div class="col-6 mb-2"><label class="form-label">Ngày sinh</label><input type="date" name="dob" class="form-control"></div>
-                            <div class="col-6 mb-2"><label class="form-label">Giới tính</label><select name="gender" class="form-select"><option value="Nam">Nam</option><option value="Nữ">Nữ</option></select></div>
-                        </div>
-                        <div class="mb-2"><label class="form-label">SĐT</label><input type="text" name="phone" class="form-control"></div>
-                        <div class="mb-3"><label class="form-label">Địa chỉ</label><input type="text" name="address" class="form-control"></div>
-                        
-                        <div class="p-3 bg-light border rounded">
-                            <div class="mb-2">
-                                <label class="form-label fw-bold text-success"><i class="fa-solid fa-calendar-days me-1"></i>Ngày hẹn khám (*)</label>
-                                <input type="date" id="visit_date" name="visit_date" class="form-control" required>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Ngày sinh</label>
+                                <input type="date" name="dob" class="form-control">
                             </div>
-                            <div class="mb-2">
-                                <label class="form-label">Triệu chứng ban đầu</label>
-                                <textarea name="symptoms" class="form-control" rows="2"></textarea>
+                            <div class="col-6 mb-3">
+                                <label class="form-label">Giới tính</label>
+                                <select name="gender" class="form-select">
+                                    <option value="Nam">Nam</option>
+                                    <option value="Nữ">Nữ</option>
+                                </select>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary w-100 mt-3 fw-bold"><i class="fa-solid fa-calendar-check me-2"></i>Lưu Hồ Sơ & Đặt Lịch</button>
+
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" name="phone" class="form-control" placeholder="09xxxxxxx">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <textarea name="address" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="p-3 bg-light border rounded shadow-sm mb-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-primary"><i class="fa-solid fa-user-md me-1"></i>Bác sĩ phụ trách (*)</label>
+                                <select name="doctor_id" class="form-select border-primary" required>
+                                    <option value="">-- Chọn bác sĩ --</option>
+                                    {% for doc in doctors %}
+                                    <option value="{{ doc.Doctor_id }}" {% if session['doctor_id'] == doc.Doctor_id %}selected{% endif %}>
+                                        {{ doc.Full_name }} - {{ doc.Specialization }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-success"><i class="fa-solid fa-calendar-check me-1"></i>Ngày hẹn khám (*)</label>
+                                <input type="date" name="visit_date" id="reg_date" class="form-control" required>
+                            </div>
+
+                            <div class="mb-0">
+                                <label class="form-label">Triệu chứng/Ghi chú</label>
+                                <textarea name="symptoms" class="form-control" rows="2" placeholder="Đau đầu, ho..."></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2 shadow-sm">
+                            <i class="fa-solid fa-floppy-disk me-2"></i>Lưu Hồ Sơ & Đặt Hẹn
+                        </button>
                     </form>
                 </div>
             </div>
 
             <div class="col-md-8">
-                <div class="card shadow-sm border-0 p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="text-primary fw-bold mb-0"><i class="fa-solid fa-address-book me-2"></i>Kho Dữ Liệu Bệnh Nhân</h5>
-                        <form action="/patients" method="GET" class="d-flex">
-                            <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Tìm tên hoặc SĐT..." value="{{ search_query }}">
+                <div class="card shadow-sm p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="text-primary fw-bold mb-0"><i class="fa-solid fa-address-book me-2"></i>Danh Sách Bệnh Nhân</h5>
+                        
+                        <form action="/patients" method="GET" class="d-flex" style="max-width: 300px;">
+                            <input type="text" name="q" class="form-control form-control-sm me-2" placeholder="Tìm tên hoặc SĐT..." value="{{ search_query if search_query else '' }}">
                             <button type="submit" class="btn btn-secondary btn-sm"><i class="fa-solid fa-magnifying-glass"></i></button>
-                            {% if search_query %}<a href="/patients" class="btn btn-outline-danger btn-sm ms-1">Xóa</a>{% endif %}
                         </form>
                     </div>
-                    
+
                     <div class="table-responsive">
                         <table class="table table-hover align-middle border">
-                            <thead class="table-light"><tr><th>ID</th><th>Họ Tên</th><th>Năm Sinh</th><th>SĐT</th><th class="text-center">Hành động</th></tr></thead>
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Họ và Tên</th>
+                                    <th>Năm Sinh</th>
+                                    <th>SĐT</th>
+                                    <th class="text-center">Hành Động</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 {% for p in patients %}
                                 <tr>
                                     <td class="text-muted">#{{ p.Patient_id }}</td>
-                                    <td><b>{{ p.Full_name }}</b></td>
+                                    <td><b class="text-dark">{{ p.Full_name }}</b></td>
                                     <td>{{ p.Dob.strftime('%Y') if p.Dob else '---' }}</td>
-                                    <td>{{ p.Phone }}</td>
+                                    <td>{{ p.Phone if p.Phone else '---' }}</td>
                                     <td class="text-center">
-                                        <a href="/add_to_queue/{{ p.Patient_id }}" class="btn btn-warning btn-sm shadow-sm mb-1" title="Khám hôm nay">
-                                            <i class="fa-solid fa-person-walking-arrow-right"></i> Khám nay
+                                        <a href="/add_to_queue/{{ p.Patient_id }}" class="btn btn-warning btn-sm btn-action shadow-sm" title="Khám hôm nay">
+                                            <i class="fa-solid fa-person-walking-arrow-right"></i>
                                         </a>
-                                        <a href="/history/{{ p.Patient_id }}" class="btn btn-info btn-sm text-white shadow-sm mb-1">
-                                            <i class="fa-solid fa-clock-rotate-left"></i> Lịch sử
+                                        <a href="/history/{{ p.Patient_id }}" class="btn btn-outline-info btn-sm btn-action shadow-sm" title="Lịch sử khám">
+                                            <i class="fa-solid fa-clock-rotate-left"></i>
                                         </a>
                                     </td>
                                 </tr>
                                 {% else %}
-                                <tr><td colspan="5" class="text-center">Không tìm thấy bệnh nhân nào.</td></tr>
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Không tìm thấy dữ liệu bệnh nhân nào.</td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -97,10 +156,12 @@
             </div>
         </div>
     </div>
-    
+
     <script>
-        // JS để tự điền ngày hôm nay vào ô Đặt lịch hẹn
-        document.getElementById('visit_date').valueAsDate = new Date();
+        document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().split('T')[0];
+            document.getElementById('reg_date').value = today;
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
