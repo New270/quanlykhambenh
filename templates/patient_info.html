@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ Sơ: {{ patient.Full_name }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-stethoscope me-2"></i>Phòng Khám Tân Tùng Trung</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Hàng Đợi Khám</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="/patients">Bệnh Nhân</a></li>
+                </ul>
+                <a href="/logout" class="btn btn-danger btn-sm"><i class="fa-solid fa-power-off me-1"></i>Thoát</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5" style="max-width: 600px;">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <i class="fa-solid fa-user-circle" style="font-size: 4rem;"></i>
+                <h3 class="mt-2 mb-0 fw-bold">{{ patient.Full_name }}</h3>
+                <span class="badge bg-light text-primary mt-2">Mã BN: #{{ patient.Patient_id }}</span>
+            </div>
+            <div class="card-body p-4">
+                <ul class="list-group list-group-flush text-muted">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-calendar-days me-2 text-primary"></i>Ngày sinh:</span>
+                        <b class="text-dark">{{ patient.Dob.strftime('%d/%m/%Y') if patient.Dob else 'Chưa cập nhật' }}</b>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-venus-mars me-2 text-primary"></i>Giới tính:</span>
+                        <b class="text-dark">{{ patient.Gender }}</b>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-phone me-2 text-primary"></i>Số điện thoại:</span>
+                        <b class="text-dark">{{ patient.Phone if patient.Phone else 'Chưa cập nhật' }}</b>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-location-dot me-2 text-primary"></i>Địa chỉ:</span>
+                        <b class="text-dark">{{ patient.Address if patient.Address else 'Chưa cập nhật' }}</b>
+                    </li>
+                </ul>
+                
+                <div class="mt-4 d-flex justify-content-between">
+                    <a href="/patients" class="btn btn-secondary"><i class=\"fa-solid fa-arrow-left me-1\"></i> Trở về</a>
+                    <div>
+                        <a href="/edit_patient_form/{{ patient.Patient_id }}" class="btn btn-warning fw-bold text-dark me-2">
+                            <i class="fa-solid fa-pen me-1"></i> Sửa
+                        </a>
+                        <a href="/history/{{ patient.Patient_id }}" class="btn btn-info fw-bold text-white">
+                            <i class="fa-solid fa-clock-rotate-left me-1"></i> Lịch sử khám
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -83,7 +83,7 @@ def manage_patients():
         all_patients = Patient.query.all()
     return render_template('patients.html', patients=all_patients, doctors=all_doctors, search_query=search_query)
 
-# --- 4. NÚT KHÁM NAY: Đưa bệnh nhân cũ vào hàng đợi ---
+# --- 4. NÚT KHÁM NGAY: Đưa bệnh nhân cũ vào hàng đợi ---
 @app.route('/add_to_queue/<int:patient_id>')
 def add_to_queue(patient_id):
     if 'doctor_id' not in session: return redirect(url_for('login'))
@@ -127,7 +127,82 @@ def examine(record_id):
     db.session.commit()
     flash('Đã hoàn thành ca khám!', 'success')
     return redirect(url_for('index'))
+# --- TRANG HIỂN THỊ FORM SỬA ---
+@app.route('/edit_patient_form/<int:patient_id>')
+def edit_patient_form(patient_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    # Lấy thông tin bệnh nhân từ Database để điền sẵn vào Form
+    patient = Patient.query.get_or_404(patient_id)
+    return render_template('edit_patient.html', patient=patient)
+# --- 7. SỬA THÔNG TIN BỆNH NHÂN ---
+@app.route('/edit_patient/<int:patient_id>', methods=['POST'])
+def edit_patient(patient_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    patient = Patient.query.get_or_404(patient_id)
+    # Cập nhật dữ liệu từ form
+    patient.Full_name = request.form.get('fullname')
+    patient.Dob = request.form.get('dob') or None
+    patient.Gender = request.form.get('gender')
+    patient.Phone = request.form.get('phone')
+    patient.Address = request.form.get('address')
+    
+    db.session.commit() # Lưu thay đổi vào SQL
+    flash('Đã cập nhật thông tin bệnh nhân thành công!', 'success')
+    return redirect(url_for('manage_patients'))
 
+# --- 8. XÓA HỒ SƠ KHÁM BỆNH ---
+@app.route('/delete_record/<int:record_id>', methods=['POST'])
+def delete_record(record_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    record = MedicalRecord.query.get_or_404(record_id)
+    p_id = record.Patient_id # Lưu ID bệnh nhân để quay lại đúng trang lịch sử
+    
+    db.session.delete(record) # Lệnh xóa bản ghi
+    db.session.commit()
+    
+    flash('Đã xóa hồ sơ khám bệnh thành công!', 'warning')
+    return redirect(url_for('view_history', patient_id=p_id))
+# --- 9. HỦY PHIẾU KHÁM (XÓA KHỎI HÀNG ĐỢI) ---
+@app.route('/cancel_record/<int:record_id>', methods=['POST'])
+def cancel_record(record_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    record = MedicalRecord.query.get_or_404(record_id)
+    db.session.delete(record)
+    db.session.commit()
+    
+    flash('Đã hủy phiếu khám và xóa khỏi hàng đợi!', 'success')
+    return redirect(url_for('index'))
+
+# --- 10. XEM CHI TIẾT THÔNG TIN BỆNH NHÂN ---
+@app.route('/patient_info/<int:patient_id>')
+def patient_info(patient_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    patient = Patient.query.get_or_404(patient_id)
+    return render_template('patient_info.html', patient=patient)
+# --- 11. XÓA BỆNH NHÂN (VÀ TOÀN BỘ HỒ SƠ LIÊN QUAN) ---
+@app.route('/delete_patient/<int:patient_id>', methods=['POST'])
+def delete_patient(patient_id):
+    if 'doctor_id' not in session: return redirect(url_for('login'))
+    
+    patient = Patient.query.get_or_404(patient_id)
+    
+    # BƯỚC QUAN TRỌNG: Tìm và xóa tất cả hồ sơ khám của bệnh nhân này trước để tránh lỗi Khóa ngoại (Foreign Key)
+    records = MedicalRecord.query.filter_by(Patient_id=patient_id).all()
+    for r in records:
+        db.session.delete(r)
+        
+    # Sau khi xóa hết hồ sơ, tiến hành xóa bệnh nhân
+    db.session.delete(patient)
+    db.session.commit()
+    
+    # Dùng flash 'danger' để hiện thông báo màu đỏ
+    flash(f'Đã xóa vĩnh viễn bệnh nhân {patient.Full_name} và toàn bộ hồ sơ khám!', 'danger')
+    return redirect(url_for('manage_patients'))
 @app.route('/logout')
 def logout():
     session.clear()
